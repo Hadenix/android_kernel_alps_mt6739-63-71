@@ -25,6 +25,7 @@
 #include <net/inet_frag.h>
 #include <net/ping.h>
 #include <net/tcp_memcontrol.h>
+#include <net/ip6_route.h>
 
 static int zero;
 static int one = 1;
@@ -279,6 +280,20 @@ bad_key:
 }
 
 static struct ctl_table ipv4_table[] = {
+	{
+		.procname = "tcp_rto_min",
+		.data = &sysctl_tcp_rto_min,
+		.maxlen = sizeof(int),
+		.mode = 0644,
+		.proc_handler = proc_dointvec_ms_jiffies,
+	},
+	{
+		.procname = "tcp_rto_max",
+		.data = &sysctl_tcp_rto_max,
+		.maxlen = sizeof(int),
+		.mode = 0644,
+		.proc_handler = proc_dointvec_ms_jiffies,
+	},
 	{
 		.procname	= "tcp_timestamps",
 		.data		= &sysctl_tcp_timestamps,
@@ -830,6 +845,29 @@ static struct ctl_table ipv4_table[] = {
 		.proc_handler	= proc_dointvec_minmax,
 		.extra1		= &one
 	},
+#ifdef UDP_SKT_WIFI
+	{
+		.procname	= "udp_met_port",
+		.data		= &sysctl_udp_met_port,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec
+	},
+	{
+		.procname	= "met_is_enable",
+		.data		= &sysctl_met_is_enable,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec
+	},
+#endif
+	{
+		.procname	= "tcp_ack_number",
+		.data		= &sysctl_tcp_ack_number,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec
+		},
 	{ }
 };
 
@@ -984,6 +1022,17 @@ static struct ctl_table ipv4_net_table[] = {
 	{ }
 };
 
+static struct ctl_table net_table[] = {
+	{
+		.procname = "optr",
+		.data = &sysctl_optr,
+		.maxlen = sizeof(int),
+		.mode = 0664,
+		.proc_handler = proc_dointvec,
+	},
+	{ }
+};
+
 static __net_init int ipv4_sysctl_init_net(struct net *net)
 {
 	struct ctl_table *table;
@@ -1042,6 +1091,10 @@ static __init int sysctl_ipv4_init(void)
 	hdr = register_net_sysctl(&init_net, "net/ipv4", ipv4_table);
 	if (!hdr)
 		return -ENOMEM;
+
+	hdr = register_net_sysctl(&init_net, "net", net_table);
+	if (!hdr)
+		pr_info("[mtk_net] register net sysctl optr is fail.\n");
 
 	if (register_pernet_subsys(&ipv4_sysctl_ops)) {
 		unregister_net_sysctl_table(hdr);
