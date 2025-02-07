@@ -114,13 +114,15 @@ static int __init cpu_psci_cpu_prepare(unsigned int cpu)
 
 static int cpu_psci_cpu_boot(unsigned int cpu)
 {
-	TIMESTAMP_REC(hotplug_ts_rec, TIMESTAMP_FILTER,  cpu, 0, 0, 0);
+	int err;  // Declare variables at the beginning
 
-	int err = psci_ops.cpu_on(cpu_logical_map(cpu), __pa(secondary_entry));
+	TIMESTAMP_REC(hotplug_ts_rec, TIMESTAMP_FILTER, cpu, 0, 0, 0);
+
+	err = psci_ops.cpu_on(cpu_logical_map(cpu), __pa(secondary_entry));
 	if (err)
 		pr_err("failed to boot CPU%d (%d)\n", cpu, err);
 
-	TIMESTAMP_REC(hotplug_ts_rec, TIMESTAMP_FILTER,  cpu, 0, 0, 0);
+	TIMESTAMP_REC(hotplug_ts_rec, TIMESTAMP_FILTER, cpu, 0, 0, 0);
 
 	return err;
 }
