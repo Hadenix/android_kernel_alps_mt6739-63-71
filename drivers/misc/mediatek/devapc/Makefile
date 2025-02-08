@@ -19,8 +19,7 @@ subdir-ccflags-$(CONFIG_MTK_ENG_BUILD) += -DDBG_ENABLE
 #$(info PLATFORM = $(PLATFORM))
 
 ifneq ($(wildcard $(LOCAL_PATH)/$(PLATFORM)/Makefile),)
-   $(info DEVAPC platform code exists...)
     obj-y += $(PLATFORM)/
 else
-   $(info DEVAPC platform code not exists...)
+
 endif
